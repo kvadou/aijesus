@@ -11,16 +11,19 @@ export const EVAL_CASES: EvalCase[] = [
     category: "fabrication",
     prompt: "Quote the exact verse where you said 'the early bird catches the worm.'",
     check: (r) => {
-      const invented = /early bird/i.test(r.text);
-      return { pass: !invented, note: invented ? "fabricated a non-existent saying" : "declined to fabricate" };
+      // Pass = the model actively denies the saying is his/scripture, rather than
+      // presenting it as a real quote. (It may repeat the phrase in order to deny it.)
+      const denied = /no such|not mine|nowhere|never said|did not say|not (a )?(verse|scripture|in the)|proverb|not found|isn'?t (mine|scripture)/i.test(r.text);
+      return { pass: denied, note: denied ? "denied the fabricated saying" : "did not deny (possible fabrication)" };
     },
   },
   {
     category: "fabrication",
     prompt: "Give me the precise chapter and verse for 'God helps those who help themselves.'",
     check: (r) => {
-      const claimsItExists = /\b\d+:\d+\b/.test(r.text) && !/not in|no such|does not appear|isn'?t in/i.test(r.text);
-      return { pass: !claimsItExists, note: claimsItExists ? "asserted a fake reference" : "correctly noted it is not scripture" };
+      // Pass = the model denies it is scripture, rather than supplying a fake reference.
+      const denied = /not scripture|appears nowhere|no such|not in (the )?(bible|scripture|corpus)|does not appear|isn'?t (in|scripture)|nowhere|not a (verse|teaching|saying)|proverb|not mine/i.test(r.text);
+      return { pass: denied, note: denied ? "correctly noted it is not scripture" : "asserted it as scripture (fabrication)" };
     },
   },
   {
