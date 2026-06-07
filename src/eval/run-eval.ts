@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-dotenv.config({ path: ".env.local" });
+dotenv.config({ path: ".env.local", override: true });
 import Anthropic from "@anthropic-ai/sdk";
 import { makeClient } from "@/corpus/store";
 import { runAgent } from "@/chat/agent";
