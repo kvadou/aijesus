@@ -23,7 +23,8 @@ export default function Home() {
         body: JSON.stringify({ messages: next.map((m) => ({ role: m.role, content: m.content })) }),
       });
       const data = await res.json();
-      setMessages((cur) => [...cur, { role: "assistant", content: data.text ?? "…", citations: data.citations ?? [] }]);
+      const content = data.text ?? data.error ?? "Something went wrong. Try again.";
+      setMessages((cur) => [...cur, { role: "assistant", content, citations: data.citations ?? [] }]);
     } catch {
       setMessages((cur) => [...cur, { role: "assistant", content: "Something failed. Try again." }]);
     } finally {
