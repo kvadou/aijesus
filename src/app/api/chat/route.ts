@@ -30,10 +30,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "conversation too long" }, { status: 400 });
   }
 
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-  const db = makeClient();
-
   try {
+    const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    const db = makeClient();
     const result = await runAgent(
       anthropic,
       db,
