@@ -5,7 +5,7 @@ Authority tiers: 1 canon · 2 deuterocanon · 3 historical · 4 pseudepigrapha �
 
 | Source ID | Work(s) | Translation | Tier | License | Status |
 |-----------|---------|-------------|------|---------|--------|
-| web | Matthew, Mark, Luke, John | World English Bible | 1 | Public domain | Pending ingest |
+| web | Matthew, Mark, Luke, John | World English Bible | 1 | Public domain | Ingested (1,289 chunks, 2026-06-07) |
 
 ## Planned (follow-up plan)
 - web: full 66-book canon
