@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { ChatMessage, type UiMessage } from "@/components/ChatMessage";
+import { Thinking } from "@/components/Thinking";
 import { Disclosure } from "@/components/Disclosure";
 
 export default function Home() {
@@ -41,7 +42,7 @@ export default function Home() {
           <p className="mt-16 text-center text-stone-400">Ask anything. Every answer is grounded in cited text.</p>
         )}
         {messages.map((m, i) => <ChatMessage key={i} m={m} />)}
-        {loading && <p className="mb-6 text-stone-400">…</p>}
+        {loading && <Thinking />}
       </div>
 
       <div className="sticky bottom-0 bg-stone-50 px-4 pb-2 pt-2">
