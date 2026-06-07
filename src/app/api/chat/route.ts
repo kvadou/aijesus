@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { makeClient } from "@/corpus/store";
 import { runAgent } from "@/chat/agent";
+import { ipAddress } from "@vercel/functions";
 import { checkRateLimit } from "@/chat/rate-limit";
 
 export const runtime = "nodejs";
@@ -14,7 +15,10 @@ export const maxDuration = 60;
 // backed by Upstash Redis (UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN env vars).
 // The route depends only on the checkRateLimit() signature, so it is a drop-in upgrade.
 export async function POST(req: NextRequest) {
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  // Use Vercel's verified client IP, not the client-controlled first X-Forwarded-For
+  // value (which is spoofable and would let an attacker rotate past the rate limit).
+  // Fall back to the LAST XFF entry (appended by the trusted proxy) then "unknown".
+  const ip = ipAddress(req) ?? req.headers.get("x-forwarded-for")?.split(",").at(-1)?.trim() ?? "unknown";
   const limit = checkRateLimit(ip);
   if (!limit.ok) {
     return NextResponse.json(
