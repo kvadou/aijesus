@@ -8,7 +8,7 @@ export const maxDuration = 60;
 
 // PUBLIC by design (anonymous access is intentional per the Prime Directive).
 // PRE-PROD REQUIREMENT: add per-IP rate limiting (Vercel KV / Upstash) before public
-// launch — this open endpoint calls a paid LLM and is otherwise a cost-abuse vector.
+// launch. This open endpoint calls a paid LLM and is otherwise a cost-abuse vector.
 // Input caps below are a first-line guard, not a substitute for rate limiting.
 export async function POST(req: NextRequest) {
   const { messages } = (await req.json()) as { messages: { role: "user" | "assistant"; content: string }[] };
