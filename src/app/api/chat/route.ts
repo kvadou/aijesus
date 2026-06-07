@@ -2,15 +2,27 @@ import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { makeClient } from "@/corpus/store";
 import { runAgent } from "@/chat/agent";
+import { checkRateLimit } from "@/chat/rate-limit";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
 // PUBLIC by design (anonymous access is intentional per the Prime Directive).
-// PRE-PROD REQUIREMENT: add per-IP rate limiting (Vercel KV / Upstash) before public
-// launch. This open endpoint calls a paid LLM and is otherwise a cost-abuse vector.
-// Input caps below are a first-line guard, not a substitute for rate limiting.
+// Basic in-memory per-IP rate limiting is now IN PLACE (30-second sliding window,
+// 8 requests max). This throttles a single client hitting a warm serverless instance.
+// For durable cross-instance enforcement, replace checkRateLimit with @upstash/ratelimit
+// backed by Upstash Redis (UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN env vars).
+// The route depends only on the checkRateLimit() signature, so it is a drop-in upgrade.
 export async function POST(req: NextRequest) {
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const limit = checkRateLimit(ip);
+  if (!limit.ok) {
+    return NextResponse.json(
+      { error: "Too many requests. Please slow down." },
+      { status: 429, headers: { "Retry-After": String(limit.retryAfter) } },
+    );
+  }
+
   const { messages } = (await req.json()) as { messages: { role: "user" | "assistant"; content: string }[] };
   if (!Array.isArray(messages) || messages.length === 0) {
     return NextResponse.json({ error: "messages required" }, { status: 400 });
