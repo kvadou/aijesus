@@ -1,4 +1,5 @@
-import "dotenv/config";
+import dotenv from "dotenv";
+dotenv.config({ path: ".env.local" });
 import { makeClient } from "@/corpus/store";
 import { ingest } from "@/corpus/ingest";
 import { BibleApiAdapter } from "@/corpus/adapters/web-bible";

@@ -1,4 +1,5 @@
-import "dotenv/config";
+import dotenv from "dotenv";
+dotenv.config({ path: ".env.local" });
 import Anthropic from "@anthropic-ai/sdk";
 import { makeClient } from "@/corpus/store";
 import { runAgent } from "@/chat/agent";
