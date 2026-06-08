@@ -22,6 +22,7 @@ export default function Home() {
   const [showAuth, setShowAuth] = useState(false);
   const [disclaimerOpen, setDisclaimerOpen] = useState(false);
   const [disclaimerFirstTime, setDisclaimerFirstTime] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const refreshConversations = useCallback(async () => {
     const res = await fetch("/api/conversations");
@@ -142,27 +143,43 @@ export default function Home() {
   }
 
   return (
-    <div className="flex h-screen bg-stone-50">
+    <div className="flex h-[100dvh] bg-stone-50">
       {user && (
         <Sidebar
           conversations={conversations}
           activeId={conversationId}
+          open={sidebarOpen}
           onSelect={loadConversation}
           onNew={newConversation}
+          onClose={() => setSidebarOpen(false)}
         />
       )}
-      <main className="mx-auto flex h-full max-w-2xl flex-1 flex-col">
-        <header className="flex items-center justify-between px-4 pt-6 pb-4">
-          <h1 className="font-serif text-2xl text-stone-800">Speak with Jesus</h1>
-          <div className="flex items-center gap-3">
-            <button onClick={() => { setDisclaimerFirstTime(false); setDisclaimerOpen(true); }} className="text-xs text-stone-400 hover:text-stone-600">
+      <main className="mx-auto flex h-full w-full max-w-2xl flex-1 flex-col">
+        <header
+          className="flex items-center gap-2 px-4 pb-4 pt-5"
+          style={{ paddingTop: "max(1.25rem, env(safe-area-inset-top))" }}
+        >
+          {user && (
+            <button
+              onClick={() => setSidebarOpen(true)}
+              aria-label="Open conversations"
+              className="-ml-2 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-stone-500 transition-colors hover:bg-stone-200/60 md:hidden"
+            >
+              <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round">
+                <path d="M4 7h16M4 12h16M4 17h16" />
+              </svg>
+            </button>
+          )}
+          <h1 className="truncate font-serif text-xl text-stone-800 sm:text-2xl">Speak with Jesus</h1>
+          <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
+            <button onClick={() => { setDisclaimerFirstTime(false); setDisclaimerOpen(true); }} className="hidden text-xs text-stone-400 transition-colors hover:text-stone-600 sm:block">
               What is this?
             </button>
             {user ? (
               <UserMenu name={user.name} onSignedOut={() => { setUser(null); newConversation(); }} onDelete={deleteAccount} />
             ) : (
-              <button onClick={() => setShowAuth(true)} className="text-sm text-stone-600 hover:text-stone-900">
-                Log in / Sign up
+              <button onClick={() => setShowAuth(true)} className="whitespace-nowrap rounded-full px-3 py-1.5 text-sm text-stone-600 transition-colors hover:bg-stone-200/60 hover:text-stone-900">
+                Log in
               </button>
             )}
           </div>
@@ -170,23 +187,38 @@ export default function Home() {
 
         <div className="flex-1 overflow-y-auto px-4">
           {messages.length === 0 && (
-            <p className="mt-16 text-center text-stone-400">Ask anything. Every answer is grounded in cited text.</p>
+            <div className="mx-auto mt-[18vh] max-w-sm px-2 text-center">
+              <p className="font-serif text-xl leading-relaxed text-stone-500">
+                Ask anything.
+              </p>
+              <p className="mt-2 text-sm leading-relaxed text-stone-400">
+                Every answer is drawn from public-domain scripture, and every claim is cited so you can check it yourself.
+              </p>
+            </div>
           )}
           {messages.map((m, i) => <ChatMessage key={i} m={m} />)}
           {loading && <Thinking />}
         </div>
 
-        <div className="sticky bottom-0 bg-stone-50 px-4 pb-4 pt-2">
-          <div className="flex gap-2">
+        <div
+          className="sticky bottom-0 bg-stone-50/95 px-4 pt-2 backdrop-blur-sm"
+          style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}
+        >
+          <div className="flex items-end gap-2">
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
               placeholder="Ask Jesus…"
               rows={1}
-              className="flex-1 resize-none rounded-xl border border-stone-200 px-4 py-3 text-base text-stone-800 placeholder-stone-400 focus:border-stone-400 focus:outline-none"
+              className="flex-1 resize-none rounded-xl border border-stone-200 bg-white px-4 py-3 text-base text-stone-800 placeholder-stone-400 transition-colors focus:border-stone-400 focus:outline-none"
             />
-            <button onClick={send} disabled={loading} className="rounded-xl bg-stone-800 px-5 py-3 text-stone-50 disabled:opacity-50">
+            <button
+              onClick={send}
+              disabled={loading || !input.trim()}
+              aria-label="Send"
+              className="flex h-12 min-w-12 items-center justify-center rounded-xl bg-stone-800 px-5 text-stone-50 transition-colors hover:bg-stone-700 disabled:opacity-40"
+            >
               Send
             </button>
           </div>

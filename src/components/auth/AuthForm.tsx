@@ -61,13 +61,13 @@ export function AuthForm({ onAuthed }: { onAuthed: () => void }) {
       <button
         onClick={submit}
         disabled={busy || !email || !password}
-        className="w-full rounded-lg bg-stone-800 py-2 text-stone-50 disabled:opacity-50"
+        className="flex min-h-11 w-full items-center justify-center rounded-lg bg-stone-800 text-stone-50 transition-colors hover:bg-stone-700 disabled:opacity-50"
       >
         {busy ? "…" : mode === "signup" ? "Sign up" : "Log in"}
       </button>
       <button
         onClick={() => setMode(mode === "signup" ? "login" : "signup")}
-        className="mt-3 w-full text-sm text-stone-500 hover:text-stone-700"
+        className="mt-3 min-h-11 w-full text-sm text-stone-500 transition-colors hover:text-stone-700"
       >
         {mode === "signup" ? "Have an account? Log in" : "New here? Create an account"}
       </button>

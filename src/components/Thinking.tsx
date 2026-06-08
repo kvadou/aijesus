@@ -15,15 +15,13 @@ export function Thinking() {
   }, []);
 
   return (
-    <div className="mb-6 flex justify-start" aria-live="polite">
-      <div className="flex items-center gap-3 rounded-2xl bg-white px-4 py-3 text-stone-500 shadow-sm">
-        <span className="flex gap-1" aria-hidden="true">
-          <span className="h-2 w-2 animate-bounce rounded-full bg-amber-400 [animation-delay:-0.3s]" />
-          <span className="h-2 w-2 animate-bounce rounded-full bg-amber-400 [animation-delay:-0.15s]" />
-          <span className="h-2 w-2 animate-bounce rounded-full bg-amber-400" />
-        </span>
-        <span className="text-sm italic">{PHRASES[i]}…</span>
-      </div>
+    <div className="mb-7 flex items-center gap-3 text-stone-400" aria-live="polite">
+      <span className="flex gap-1.5" aria-hidden="true">
+        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-400 [animation-delay:-0.4s]" />
+        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-400 [animation-delay:-0.2s]" />
+        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-400" />
+      </span>
+      <span className="font-serif text-[15px] italic">{PHRASES[i]}…</span>
     </div>
   );
 }
