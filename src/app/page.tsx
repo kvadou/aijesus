@@ -37,8 +37,13 @@ export default function Home() {
         setUser({ id: data.user.id, name });
         const { data: profile } = await supabase.from("profiles").select("disclaimer_acknowledged").single();
         if (!profile?.disclaimer_acknowledged) {
-          setDisclaimerFirstTime(true);
-          setDisclaimerOpen(true);
+          if (window.localStorage.getItem(ACK_KEY) === "1") {
+            // Carry over an acknowledgement made while anonymous so we never show it twice.
+            supabase.from("profiles").update({ disclaimer_acknowledged: true }).eq("id", data.user.id).then(() => {});
+          } else {
+            setDisclaimerFirstTime(true);
+            setDisclaimerOpen(true);
+          }
         }
         await refreshConversations();
         const local = readLocal(window.localStorage);
