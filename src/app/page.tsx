@@ -111,7 +111,7 @@ export default function Home() {
         if (user) refreshConversations();
       }
       if (!user) {
-        const id = conversationId ?? `local-${updated[0].content.slice(0, 8)}-${updated.length}`;
+        const id = conversationId ?? crypto.randomUUID();
         const title = updated[0].content.slice(0, 60);
         const others = readLocal(window.localStorage).filter((c) => c.id !== id);
         writeLocal(window.localStorage, [
@@ -129,6 +129,8 @@ export default function Home() {
 
   async function deleteAccount() {
     await fetch("/api/account", { method: "DELETE" });
+    await browserClient().auth.signOut();
+    window.localStorage.removeItem(ACK_KEY);
     setUser(null);
     setConversations([]);
     newConversation();
