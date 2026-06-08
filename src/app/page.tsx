@@ -7,7 +7,7 @@ import { AuthForm } from "@/components/auth/AuthForm";
 import { UserMenu } from "@/components/auth/UserMenu";
 import { Disclaimer } from "@/components/Disclaimer";
 import { browserClient } from "@/lib/supabase/client";
-import { readLocal, writeLocal, clearLocal, type LocalConversation } from "@/lib/local-history";
+import { readLocal, writeLocal, clearLocal } from "@/lib/local-history";
 import type { ConversationSummary } from "@/lib/conversations";
 
 const ACK_KEY = "aijesus.disclaimer_ack";
