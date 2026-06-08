@@ -1,10 +1,9 @@
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { serviceClient } from "@/lib/supabase/service";
 import type { Chunk } from "@/corpus/types";
 
 export function makeClient(): SupabaseClient {
-  return createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
-    auth: { persistSession: false },
-  });
+  return serviceClient();
 }
 
 export async function insertChunks(

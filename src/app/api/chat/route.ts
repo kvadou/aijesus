@@ -4,6 +4,8 @@ import { makeClient } from "@/corpus/store";
 import { runAgent } from "@/chat/agent";
 import { ipAddress } from "@vercel/functions";
 import { checkRateLimit } from "@/chat/rate-limit";
+import { userServerClient } from "@/lib/supabase/server";
+import { createConversation, appendMessage, touchConversation, autoTitle } from "@/lib/conversations";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -27,7 +29,10 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { messages } = (await req.json()) as { messages: { role: "user" | "assistant"; content: string }[] };
+  const { messages, conversationId } = (await req.json()) as {
+    messages: { role: "user" | "assistant"; content: string }[];
+    conversationId?: string;
+  };
   if (!Array.isArray(messages) || messages.length === 0) {
     return NextResponse.json({ error: "messages required" }, { status: 400 });
   }
@@ -54,7 +59,27 @@ export async function POST(req: NextRequest) {
       db,
       messages.map((m) => ({ role: m.role, content: m.content })),
     );
-    return NextResponse.json(result);
+
+    // Persist only for logged-in users; anonymous users keep history in the browser.
+    // A persistence failure must never swallow the answer the model already produced.
+    let convId = conversationId ?? null;
+    try {
+      const supabase = await userServerClient();
+      const { data: auth } = await supabase.auth.getUser();
+      if (auth.user) {
+        const lastUser = [...messages].reverse().find((m) => m.role === "user");
+        if (!convId) {
+          convId = await createConversation(supabase, auth.user.id, autoTitle(lastUser?.content ?? "New conversation"));
+        }
+        if (lastUser) await appendMessage(supabase, convId, "user", lastUser.content, []);
+        await appendMessage(supabase, convId, "assistant", result.text, result.citations);
+        await touchConversation(supabase, convId);
+      }
+    } catch (persistErr) {
+      console.error("persistence failed (answer still returned):", persistErr);
+    }
+
+    return NextResponse.json({ ...result, conversationId: convId });
   } catch (e) {
     console.error(e);
     return NextResponse.json({ error: "internal error" }, { status: 500 });
