@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
   for (const conv of conversations) {
     const title = conv.title?.slice(0, 200) || "Imported conversation";
     const id = await createConversation(supabase, auth.user.id, title);
-    for (const m of conv.messages ?? []) {
+    for (const m of (conv.messages ?? []).slice(0, 500)) {
       if (m.role !== "user" && m.role !== "assistant") continue;
       if (typeof m.content !== "string" || m.content.length > 8000) continue;
       await appendMessage(supabase, id, m.role, m.content, Array.isArray(m.citations) ? m.citations : []);
