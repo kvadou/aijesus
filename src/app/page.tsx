@@ -184,7 +184,7 @@ export default function Home() {
               onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
               placeholder="Ask Jesus…"
               rows={1}
-              className="flex-1 resize-none rounded-xl border border-stone-200 px-4 py-3 text-stone-800 focus:border-stone-400 focus:outline-none"
+              className="flex-1 resize-none rounded-xl border border-stone-200 px-4 py-3 text-base text-stone-800 placeholder-stone-400 focus:border-stone-400 focus:outline-none"
             />
             <button onClick={send} disabled={loading} className="rounded-xl bg-stone-800 px-5 py-3 text-stone-50 disabled:opacity-50">
               Send
