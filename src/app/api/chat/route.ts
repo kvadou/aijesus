@@ -61,17 +61,22 @@ export async function POST(req: NextRequest) {
     );
 
     // Persist only for logged-in users; anonymous users keep history in the browser.
+    // A persistence failure must never swallow the answer the model already produced.
     let convId = conversationId ?? null;
-    const supabase = await userServerClient();
-    const { data: auth } = await supabase.auth.getUser();
-    if (auth.user) {
-      const lastUser = [...messages].reverse().find((m) => m.role === "user");
-      if (!convId) {
-        convId = await createConversation(supabase, auth.user.id, autoTitle(lastUser?.content ?? "New conversation"));
+    try {
+      const supabase = await userServerClient();
+      const { data: auth } = await supabase.auth.getUser();
+      if (auth.user) {
+        const lastUser = [...messages].reverse().find((m) => m.role === "user");
+        if (!convId) {
+          convId = await createConversation(supabase, auth.user.id, autoTitle(lastUser?.content ?? "New conversation"));
+        }
+        if (lastUser) await appendMessage(supabase, convId, "user", lastUser.content, []);
+        await appendMessage(supabase, convId, "assistant", result.text, result.citations);
+        await touchConversation(supabase, convId);
       }
-      if (lastUser) await appendMessage(supabase, convId, "user", lastUser.content, []);
-      await appendMessage(supabase, convId, "assistant", result.text, result.citations);
-      await touchConversation(supabase, convId);
+    } catch (persistErr) {
+      console.error("persistence failed (answer still returned):", persistErr);
     }
 
     return NextResponse.json({ ...result, conversationId: convId });
